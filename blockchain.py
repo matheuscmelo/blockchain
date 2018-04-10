@@ -1,4 +1,6 @@
 import hashlib
+from flask_restful import fields
+
 class Transaction:
 	def __init__(self, sender, receiver, amount):
 		self.sender = sender
@@ -9,6 +11,11 @@ class Transaction:
 		return "%s %s %.8f" % (self.sender, self.receiver, self.amount)
 
 class Block:
+
+	api_fields = {
+		'hash': fields.String
+	}
+
 	def __init__(self, block_before=None, next_block=None):
 		self.transactions = []
 		self.block_before = block_before
@@ -34,9 +41,19 @@ class Block:
 		return bhash.hexdigest()
 
 class Blockchain:
+
 	def __init__(self, genesis=None):
 		self.genesis = genesis
 		self.last_block = genesis
+
+	@property
+	def to_list(self):
+		blocks = []
+		block = self.genesis
+		while block:
+			blocks.append(block)
+			block = block.next_block
+		return blocks
 
 	def size(self):
 		block = self.genesis
