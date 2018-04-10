@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+    blockchain:
+        build: .
+        ports:
+            - 80:80
+        volumes:
+            - .:/var/apps/blockchain/
+        command: python3 app.py

@@ -41,7 +41,7 @@ class Blockchain:
 	def size(self):
 		block = self.genesis
 		size = 0
-		while(block):
+		while block:
 			size += 1
 			block = block.next_block
 		return size
@@ -57,7 +57,7 @@ class Blockchain:
 	def is_valid(self):
 		block = self.genesis
 
-		while(block):
+		while block:
 			bhash = block.calculate_hash()
 			if bhash != block.hash: return False
 			block = block.next_block
