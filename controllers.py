@@ -1,6 +1,6 @@
 from flask import request
 from flask_restful import Resource
-from blockchain import Blockchain, Block
+from blockchain import Blockchain, Block, Transaction
 from flask_restful import marshal_with
 
 class BlockchainHolder:
@@ -18,10 +18,11 @@ class TransactionController(Resource):
 
 	blockchain = BlockchainHolder.blockchain
 
+	@marshal_with(Transaction.api_fields)
 	def post(self):
 		data = request.get_json()
-		self.blockchain.add_transaction(data["sender"], data["receiver"], float(data["amount"]))
-		return data
+		return self.blockchain.add_transaction(data["sender"], data["receiver"], float(data["amount"]))
+		
 
 class BlockchainController(Resource):
 

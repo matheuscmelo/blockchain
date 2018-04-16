@@ -1,22 +1,32 @@
 # coding: utf-8
 import hashlib
 from flask_restful import fields
-
+from datetime import datetime
 class Transaction:
 
 	api_fields = {
 		'sender': fields.String,
 		'receiver': fields.String,
-		'amount': fields.Float
+		'amount': fields.Float,
+		'timestamp': fields.String,
+		'hash': fields.String
 	}
 
-	def __init__(self, sender, receiver, amount):
+	def __init__(self, sender, receiver, amount, timestamp=None):
 		self.sender = sender
 		self.receiver = receiver
 		self.amount = amount
+		if timestamp: self.timestamp = timestamp
+		else: self.timestamp = datetime.now()
+		self.hash = self.calculate_hash()
 
-	def __str__(self):
-		return "%s %s %.8f" % (self.sender, self.receiver, self.amount)
+	def calculate_hash(self):
+		bhash = hashlib.sha256()
+		bhash.update(self.sender.encode('utf-8'))
+		bhash.update(self.receiver.encode('utf-8'))
+		bhash.update(str(self.amount).encode('utf-8'))
+		bhash.update(str(self.timestamp).encode('utf-8'))
+		return bhash.hexdigest()
 
 class Block:
 
@@ -35,8 +45,9 @@ class Block:
 		self.is_closed = False
 
 	def add_transaction(self, sender, receiver, amount):
-		if not self.is_closed:
-			self.transactions.append(Transaction(sender, receiver, amount))
+		transaction = Transaction(sender, receiver, amount)
+		self.transactions.append(transaction)
+		return transaction
 
 	def close(self):
 		self.hash = self.calculate_hash()
@@ -46,7 +57,7 @@ class Block:
 		bhash = hashlib.sha256()
 		bhash.update(str(self.index).encode('utf-8'))
 		for transaction in self.transactions:
-			bhash.update(transaction.__str__().encode('utf-8'))
+			bhash.update(transaction.hash.encode('utf-8'))
 
 		if self.block_before: bhash.update(block_before.hash)
 
@@ -101,7 +112,7 @@ class Blockchain:
 		block.close()
 
 	def add_transaction(self, sender, receiver, amount):
-		self.last_block.add_transaction(sender, receiver, amount)
+		return self.last_block.add_transaction(sender, receiver, amount)
 
 	def new_blockchain(self, blockchain):
 		if blockchain.is_valid() and blockchain.size() > self.size():
