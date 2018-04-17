@@ -28,6 +28,6 @@ class BlockchainController(Resource):
 
 	blockchain = BlockchainHolder.blockchain
 
-	def post(self):
+	def put(self):
 		self.blockchain.close_last_block()
 		return {}
