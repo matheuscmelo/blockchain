@@ -2,6 +2,7 @@
 import hashlib
 from flask_restful import fields
 from datetime import datetime
+from node import Notifier
 class Transaction:
 
 	api_fields = {
@@ -12,13 +13,15 @@ class Transaction:
 		'hash': fields.String
 	}
 
-	def __init__(self, sender, receiver, amount, timestamp=None):
+	def __init__(self, sender, receiver, amount, timestamp=None, thash=None):
 		self.sender = sender
 		self.receiver = receiver
 		self.amount = amount
 		if timestamp: self.timestamp = timestamp
 		else: self.timestamp = datetime.now()
-		self.hash = self.calculate_hash()
+		
+		if not thash: self.hash = self.calculate_hash()
+		else: self.hash=thash 
 
 	def calculate_hash(self):
 		bhash = hashlib.sha256()
@@ -28,7 +31,12 @@ class Transaction:
 		bhash.update(str(self.timestamp).encode('utf-8'))
 		return bhash.hexdigest()
 
+	def __hash__(self):
+		return self.hash
+
 class Block:
+
+	notifier = Notifier()
 
 	api_fields = {
 		'hash': fields.String,
@@ -46,7 +54,9 @@ class Block:
 
 	def add_transaction(self, sender, receiver, amount):
 		transaction = Transaction(sender, receiver, amount)
-		self.transactions.append(transaction)
+		if transaction not in self.transactions:
+			self.transactions.append(transaction)
+			# self.notifier.notify_transaction(transaction)
 		return transaction
 
 	def close(self):

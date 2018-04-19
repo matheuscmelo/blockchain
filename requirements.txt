@@ -8,3 +8,4 @@ MarkupSafe==1.0
 pytz==2018.4
 six==1.11.0
 Werkzeug==0.14.1
+requests==2.18.4
