@@ -5,7 +5,7 @@ class Node:
 
 	def __init__(self, neighbours=set()):
 		self.neighbours = neighbours
-		self.neighbours.add('http://127.0.0.1/')
+		self.neighbours.add('http://150.165.74.103:8000/')
  
 	def receive(self, url, data=None):
 		return requests.get(url, data=data).json()
@@ -36,4 +36,6 @@ class Notifier(Thread):
 		self.send(self.method, self.url, self.data)
  
 	def send(self, method, url, data={}): 
-		method(url, data=data)
+		
+		method(url, json=data)
+
