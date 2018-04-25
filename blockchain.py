@@ -2,7 +2,7 @@
 import hashlib
 from flask_restful import fields
 from datetime import datetime
-from node import Notifier
+from node import Node
 class Transaction:
 
 	api_fields = {
@@ -18,7 +18,7 @@ class Transaction:
 		self.receiver = receiver
 		self.amount = amount
 		if timestamp: self.timestamp = timestamp
-		else: self.timestamp = datetime.now()
+		else: self.timestamp = str(datetime.now())
 		
 		if not thash: self.hash = self.calculate_hash()
 		else: self.hash=thash 
@@ -28,15 +28,17 @@ class Transaction:
 		bhash.update(self.sender.encode('utf-8'))
 		bhash.update(self.receiver.encode('utf-8'))
 		bhash.update(str(self.amount).encode('utf-8'))
-		bhash.update(str(self.timestamp).encode('utf-8'))
+		bhash.update(self.timestamp.encode('utf-8'))
 		return bhash.hexdigest()
 
-	def __hash__(self):
-		return self.hash
+	def __eq__(self, other):
+		return self.hash == other.hash
+
+
 
 class Block:
 
-	notifier = Notifier()
+	node = Node()
 
 	api_fields = {
 		'hash': fields.String,
@@ -50,13 +52,13 @@ class Block:
 		self.block_before = block_before
 		self.next_block = next_block
 		self.hash = ''
-		self.is_closed = False
+		self.is_closed = False 
 
-	def add_transaction(self, sender, receiver, amount):
-		transaction = Transaction(sender, receiver, amount)
+	def add_transaction(self, sender, receiver, amount, timestamp, thash):
+		transaction = Transaction(sender, receiver, amount, timestamp, thash)
 		if transaction not in self.transactions:
 			self.transactions.append(transaction)
-			# self.notifier.notify_transaction(transaction)
+			self.node.notify_transaction(transaction)
 		return transaction
 
 	def close(self):
@@ -121,8 +123,8 @@ class Blockchain:
 		self.add_block(Block())
 		block.close()
 
-	def add_transaction(self, sender, receiver, amount):
-		return self.last_block.add_transaction(sender, receiver, amount)
+	def add_transaction(self, sender, receiver, amount, timestamp=None, thash=None):
+		return self.last_block.add_transaction(sender, receiver, amount, timestamp, thash)
 
 	def new_blockchain(self, blockchain):
 		if blockchain.is_valid() and blockchain.size() > self.size():

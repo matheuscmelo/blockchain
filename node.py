@@ -1,32 +1,18 @@
 import requests
-class Notifier:
+from threading import Thread
+import json
+class Node:
 
 	def __init__(self, neighbours=set()):
 		self.neighbours = neighbours
-		self.neighbours.add('http://localhost/')
-
-	def send(self, method, url, data=None):
-		try:
-			method(url, data=data).json()
-			return True
-		except:
-			return False
-
+		self.neighbours.add('http://127.0.0.1/')
+ 
 	def receive(self, url, data=None):
 		return requests.get(url, data=data).json()
 
-	def notify_neighbours(self, method, url, data=None):
-		failed_neighbours = []
+	def notify_neighbours(self, method, url, data=None): 
 		for neighbour in self.neighbours:
-			if not self.send(method, neighbour+url, data):
-				failed_neighbours.add(neighbour)
-		return failed_neighbours
-
-	def notify(self, method, url, data=None):
-		failed_neighbours = self.notify_neighbours(method, url, data)
-		for failed in failed_neighbours:
-			self.neighbours.remove(failed)
-		self.ask_new_neighbours(len(failed_neighbours))
+			Notifier(node=self,url=neighbour + url, method=method, data=data).start()
 
 	def ask_new_neighbours(self, quantity):
 		for neighbour in self.neighbours:
@@ -34,5 +20,20 @@ class Notifier:
 			for new_neighbour in new_neighbours:
 				self.neighbours.add(new_neighbour)
 
-	def notify_transaction(self, transaction):
-		self.notify(requests.post, "blockchain")
+	def notify_transaction(self, transaction): 
+		self.notify_neighbours(method=requests.post, url="blockchain", data=transaction.__dict__)
+
+class Notifier(Thread):
+
+	def __init__(self, node, url, method, data):
+		self.node = node
+		self.url = url
+		self.method = method
+		self.data = data
+		Thread.__init__(self)
+
+	def run(self): 
+		self.send(self.method, self.url, self.data)
+ 
+	def send(self, method, url, data={}): 
+		method(url, data=data)
