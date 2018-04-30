@@ -1,41 +1,76 @@
 import requests
 from threading import Thread
 import json
+from blockchain import Blockchain
 class Node:
 
-	def __init__(self, neighbours=set()):
+	def __init__(self, neighbours=set(), blockchain = Blockchain()):
 		self.neighbours = neighbours
-		self.neighbours.add('http://150.165.74.103:8000/')
- 
-	def receive(self, url, data=None):
-		return requests.get(url, data=data).json()
+		self.neighbours.add('http://206.189.174.49:5000/')
+		self.blockchain = blockchain
+		if len(self.neighbours) < 8:
+			self.ask_new_neighbours(8-len(self.neighbours))
 
 	def notify_neighbours(self, method, url, data=None): 
 		for neighbour in self.neighbours:
-			Notifier(node=self,url=neighbour + url, method=method, data=data).start()
+			Notifier(node=self, url=neighbour + url, method=method, data=data).start()
 
 	def ask_new_neighbours(self, quantity):
-		for neighbour in self.neighbours:
-			new_neighbours = self.receive(neighbour+"neighbours", data={'quantity': quantity})
-			for new_neighbour in new_neighbours:
-				self.neighbours.add(new_neighbour)
+		Notifier(node=self, function=NotifierFunctions.get_neighbours).start()
+		
 
 	def notify_transaction(self, transaction): 
 		self.notify_neighbours(method=requests.post, url="blockchain", data=transaction.__dict__)
 
+	def to_list(self):
+		return self.blockchain.to_list
+
+	def size(self):
+		return self.blockchain.size()
+
+	def add_block(self, block):
+		self.blockchain.add_block(block)
+
+	def is_valid(self):
+		return self.blockchain.is_valid()
+
+	def close_last_block(self):
+		self.blockchain.close_last_block()
+
+	def add_transaction(self, sender, receiver, amount, timestamp=None, thash=None):
+		return self.blockchain.add_transaction(sender, receiver, amount, timestamp, thash)
+
+	def new_blockchain(self, blockchain):
+		self.blockchain.new_blockchain(blockchain)
+
+
 class Notifier(Thread):
 
-	def __init__(self, node, url, method, data):
+	def __init__(self, node=None, url=None, method=None, data=None, function=None):
 		self.node = node
 		self.url = url
 		self.method = method
 		self.data = data
+		self.function = function
 		Thread.__init__(self)
 
-	def run(self): 
-		self.send(self.method, self.url, self.data)
+	def run(self):
+		try:
+			self.function(notifier=self, node=self.node, url=self.url, method=self.method, data=self.data, function=self.function)
+		except:
+			return False
  
 	def send(self, method, url, data={}): 
-		
 		method(url, json=data)
 
+	def receive(self, url, data=None):
+		return requests.get(url, data=data).json()
+
+class NotifierFunctions:
+
+	def get_neighbours(notifier, node, *args, **kwargs):
+		new_neighbours = []
+		for neighbour in node.neighbours:
+			new_neighbours = new_neighbours + notifier.receive(neighbour+"neighbours")
+		for neighbour in new_neighbours:
+			node.neighbours.add(neighbour)

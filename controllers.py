@@ -5,20 +5,19 @@ from flask_restful import marshal_with
 from node import Node
 
 class BlockchainHolder:
-	blockchain = Blockchain()
 	node = Node()
 
 class BlockListController(Resource):
 
-	blockchain = BlockchainHolder.blockchain
+	node = BlockchainHolder.node
 
 	@marshal_with(Block.api_fields)
 	def get(self):
-		return self.blockchain.to_list
+		return self.node.to_list()
 
 class TransactionController(Resource):
 
-	blockchain = BlockchainHolder.blockchain
+	node = BlockchainHolder.node
 
 	@marshal_with(Transaction.api_fields)
 	def post(self):
@@ -30,13 +29,13 @@ class TransactionController(Resource):
 
 class BlockchainController(Resource):
 
-	blockchain = BlockchainHolder.blockchain
+	node = BlockchainHolder.node
 
 	def put(self):
-		self.blockchain.close_last_block()
+		self.node.close_last_block()
 		return {}
 
-class NeighbourController(Resource): 
+class NeighbourController(Resource):
 
 	node = BlockchainHolder.node
 

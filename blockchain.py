@@ -2,7 +2,6 @@
 import hashlib
 from flask_restful import fields
 from datetime import datetime
-from node import Node
 class Transaction:
 
 	api_fields = {
@@ -38,8 +37,6 @@ class Transaction:
 
 class Block:
 
-	node = Node()
-
 	api_fields = {
 		'hash': fields.String,
 		'index': fields.Integer,
@@ -58,7 +55,6 @@ class Block:
 		transaction = Transaction(sender, receiver, amount, timestamp, thash)
 		if transaction not in self.transactions:
 			self.transactions.append(transaction)
-			self.node.notify_transaction(transaction)
 		return transaction
 
 	def close(self):
