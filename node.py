@@ -35,6 +35,7 @@ class Node:
 
 	def close_last_block(self):
 		self.blockchain.close_last_block()
+		self.notify_close_block()
 
 	def add_transaction(self, sender, receiver, amount, timestamp=None, thash=None):
 		transaction, result = self.blockchain.add_transaction(sender, receiver, amount, timestamp, thash)
