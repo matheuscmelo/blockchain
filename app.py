@@ -1,9 +1,11 @@
 from flask import Flask
 from flask_restful import Api
+from flask_cors import CORS
 from controllers import BlockListController, TransactionController, BlockchainController, NeighbourController
 
 app = Flask(__name__)
 api = Api(app)
+cors = CORS(app)
 
 api.add_resource(BlockListController, '/')
 api.add_resource(TransactionController, '/blockchain')

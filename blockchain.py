@@ -55,7 +55,8 @@ class Block:
 		transaction = Transaction(sender, receiver, amount, timestamp, thash)
 		if transaction not in self.transactions:
 			self.transactions.append(transaction)
-		return transaction
+			return transaction, True
+		return transaction, False
 
 	def close(self):
 		self.hash = self.calculate_hash()

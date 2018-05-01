@@ -11,25 +11,24 @@ class Node:
 		if len(self.neighbours) < 8:
 			self.ask_new_neighbours(8-len(self.neighbours))
 
-	def notify_neighbours(self, method, url, data=None): 
+	def notify_neighbours(self, method, url, data={}): 
 		for neighbour in self.neighbours:
 			Notifier(node=self, url=neighbour + url, method=method, data=data).start()
 
 	def ask_new_neighbours(self, quantity):
 		Notifier(node=self, function=NotifierFunctions.get_neighbours).start()
 		
-
 	def notify_transaction(self, transaction): 
 		self.notify_neighbours(method=requests.post, url="blockchain", data=transaction.__dict__)
+
+	def notify_close_block(self):
+		self.notify_neighbours(method=requests.put, url="blockchain/closeblock")
 
 	def to_list(self):
 		return self.blockchain.to_list
 
 	def size(self):
 		return self.blockchain.size()
-
-	def add_block(self, block):
-		self.blockchain.add_block(block)
 
 	def is_valid(self):
 		return self.blockchain.is_valid()
@@ -38,13 +37,17 @@ class Node:
 		self.blockchain.close_last_block()
 
 	def add_transaction(self, sender, receiver, amount, timestamp=None, thash=None):
-		return self.blockchain.add_transaction(sender, receiver, amount, timestamp, thash)
+		transaction, result = self.blockchain.add_transaction(sender, receiver, amount, timestamp, thash)
+
+		if result:
+			self.notify_transaction(transaction)
+		return transaction
 
 	def new_blockchain(self, blockchain):
 		self.blockchain.new_blockchain(blockchain)
 
 
-class Notifier(Thread):
+class Notifier(Thread): 
 
 	def __init__(self, node=None, url=None, method=None, data=None, function=None):
 		self.node = node
@@ -56,7 +59,11 @@ class Notifier(Thread):
 
 	def run(self):
 		try:
-			self.function(notifier=self, node=self.node, url=self.url, method=self.method, data=self.data, function=self.function)
+			if self.function:
+				self.function(notifier=self, node=self.node, url=self.url, method=self.method, data=self.data, function=self.function)
+			else:
+				self.method(self.url, json=self.data)
+			return True
 		except:
 			return False
  

@@ -1,7 +1,7 @@
 version: '2'
 
 services:
-    node1:
+    blockchain:
         build: .
         ports:
             - 5000:5000

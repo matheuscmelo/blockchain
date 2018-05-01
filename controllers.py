@@ -23,8 +23,8 @@ class TransactionController(Resource):
 	def post(self):
 		data = request.get_json()
 		if("hash" in data and "timestamp" in data):
-			return self.blockchain.add_transaction(data["sender"], data["receiver"], float(data["amount"]), timestamp=data["timestamp"], thash=data["hash"])
-		return self.blockchain.add_transaction(data["sender"], data["receiver"], float(data["amount"]))
+			return self.node.add_transaction(data["sender"], data["receiver"], float(data["amount"]), timestamp=data["timestamp"], thash=data["hash"])
+		return self.node.add_transaction(data["sender"], data["receiver"], float(data["amount"]))
 		
 
 class BlockchainController(Resource):
