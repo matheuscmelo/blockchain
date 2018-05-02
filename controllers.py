@@ -22,6 +22,7 @@ class TransactionController(Resource):
 	@marshal_with(Transaction.api_fields)
 	def post(self):
 		data = request.get_json()
+		self.node.add_neighbour(request.remote_addr)
 		if("hash" in data and "timestamp" in data):
 			return self.node.add_transaction(data["sender"], data["receiver"], float(data["amount"]), timestamp=data["timestamp"], thash=data["hash"])
 		return self.node.add_transaction(data["sender"], data["receiver"], float(data["amount"]))

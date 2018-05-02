@@ -4,7 +4,7 @@ services:
     blockchain:
         build: .
         ports:
-            - 5000:5000
+            - 81:81
         volumes:
             - .:/var/apps/blockchain/
         command: python3 app.py

@@ -6,7 +6,7 @@ class Node:
 
 	def __init__(self, neighbours=set(), blockchain = Blockchain()):
 		self.neighbours = neighbours
-		self.neighbours.add('http://206.189.174.49:5000/')
+		self.neighbours.add('http://206.189.174.49:81/')
 		self.blockchain = blockchain
 		if len(self.neighbours) < 8:
 			self.ask_new_neighbours(8-len(self.neighbours))
@@ -46,6 +46,10 @@ class Node:
 
 	def new_blockchain(self, blockchain):
 		self.blockchain.new_blockchain(blockchain)
+
+	def add_neighbour(self, neighbour):
+		self.neighbours.add("http://%s:81/" % neighbour)
+
 
 
 class Notifier(Thread): 
