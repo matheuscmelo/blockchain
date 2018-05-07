@@ -34,7 +34,7 @@ class BlockchainController(Resource):
 
 	def put(self):
 		data = request.get_json()
-		if "index" in data:
+		if data and "index" in data:
 			print (data["index"]) 
 			self.node.close_last_block(data["index"])
 		else:
