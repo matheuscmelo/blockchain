@@ -33,7 +33,13 @@ class BlockchainController(Resource):
 	node = BlockchainHolder.node
 
 	def put(self):
-		self.node.close_last_block()
+		data = request.args
+		if "index" in data:
+			print (data["index"]) 
+			self.node.close_last_block(data["index"])
+		else:
+			self.node.close_last_block()
+		self.node.add_neighbour(request.remote_addr)
 		return {}
 
 class NeighbourController(Resource):
