@@ -38,8 +38,9 @@ class Node:
 		return self.blockchain.is_valid()
 
 	def close_last_block(self, index=None):
-		self.blockchain.close_last_block(index)
-		self.notify_close_block(index)
+		index = self.blockchain.close_last_block(index)
+		if index != -1:
+			self.notify_close_block(index)
 
 	def add_transaction(self, sender, receiver, amount, timestamp=None, thash=None):
 		transaction, result = self.blockchain.add_transaction(sender, receiver, amount, timestamp, thash)
@@ -100,6 +101,6 @@ class NotifierFunctions:
 
 	def notify(notifier, url, node, data, *args, **kwargs):
 		try:
-			notifier.send(url, data) 
+			notifier.send(url, data)
 		except:
 			node.remove_neighbour(url)
