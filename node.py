@@ -4,16 +4,21 @@ import json
 from blockchain import Blockchain
 from urllib.parse import urlparse
 from time import sleep
+from serializers import blockchain_serializer
 
 class Node:
 
 	def __init__(self, neighbours=set(), blockchain = Blockchain()):
 		self.neighbours = neighbours
 		self.neighbours.add('http://206.189.174.49:81/')
-		self.neighbours.add('http://206.189.174.459:81/')
 		self.blockchain = blockchain
 		if len(self.neighbours) < 8:
 			self.ask_new_neighbours(8-len(self.neighbours))
+		self.get_blockchain_neighbours()
+
+	def get_blockchain_neighbours(self):
+		for neighbour in list(self.neighbours):
+			Notifier(node=self, url=neighbour, function=NotifierFunctions.get_blockchain).start()
 
 	def notify_neighbours(self,url, method=None, function=None, data={}): 
 		for neighbour in list(self.neighbours):
@@ -99,6 +104,19 @@ class NotifierFunctions:
 				pass
 		for neighbour in new_neighbours: 
 			node.neighbours.add(neighbour)
+
+	def get_blockchain(notifier, node, url, *args, **kwargs):
+		data = None
+		try:
+			data = notifier.receive(url)
+		except:
+			node.remove_neighbour(url)
+		if data:
+			print(data)
+			blockchain = blockchain_serializer(data)
+			node.new_blockchain(blockchain)
+
+
 
 	def notify(notifier, url, node, data, *args, **kwargs):
 		try:

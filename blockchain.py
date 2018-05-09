@@ -43,10 +43,9 @@ class Block:
 		'transactions': fields.Nested(Transaction.api_fields)
 	}
 
-	def __init__(self, block_before=None, next_block=None, index=0):
+	def __init__(self, next_block=None, index=0):
 		self.index = index
 		self.transactions = []
-		self.block_before = block_before
 		self.next_block = next_block
 		self.hash = ''
 		self.is_closed = False 
@@ -67,8 +66,6 @@ class Block:
 		bhash.update(str(self.index).encode('utf-8'))
 		for transaction in self.transactions:
 			bhash.update(transaction.hash.encode('utf-8'))
-
-		if self.block_before: bhash.update(block_before.hash)
 
 		return bhash.hexdigest()
 
@@ -110,12 +107,14 @@ class Blockchain:
 
 		while block:
 			bhash = block.calculate_hash()
-			if bhash != block.hash: return False
+
+			if block.hash: 
+				if bhash != block.hash: return False
 			block = block.next_block
 
 		return True
 
-	def close_last_block(self, index=None):
+	def close_last_block(self, index=None): 
 		block_index = -1
 		if not index or int(index) == self.last_block.index:
 			block = self.last_block
