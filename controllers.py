@@ -51,3 +51,12 @@ class NeighbourController(Resource):
 
 	def get(self):
 		return list(self.node.neighbours)
+
+class BlockDetailController(Resource):
+
+	node = BlockchainHolder.node
+
+	@marshal_with(Block.api_fields)
+	def get(self, index):
+		return self.node.get_block(index)
+

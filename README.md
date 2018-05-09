@@ -12,5 +12,5 @@ Each node uses REST protocols to connect with each other nodes and create the ne
 | ------ | ------------ | -----                    | ---------------------- |
 | POST   | /blockchain/ | sender, receiver, amount | Creates a transaction and returns the object created with hash and timestamp |  
 | GET    | / | | Returns the whole blockchain data |
-| GET | /blockchain/transaction/{index} | | Returns a single block by index |
+| GET | /blockchain/block/{index} | | Returns a single block by index |
 

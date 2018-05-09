@@ -131,3 +131,10 @@ class Blockchain:
 		if blockchain.is_valid() and blockchain.size() > self.size():
 			self.genesis = blockchain.genesis
 			self.last_block = blockchain.last_block
+
+	def get_block(self, index):
+		block = self.genesis
+		while block:
+			if block.index == index: return block
+			block = block.next_block
+		return None

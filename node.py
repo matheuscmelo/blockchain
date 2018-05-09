@@ -60,9 +60,10 @@ class Node:
 		if neighbour: neighbour_to_remove = neighbour
 		elif url:
 			neighbour_to_remove = "http://%s/" % urlparse(url).netloc
-		print (neighbour_to_remove) 
 		self.neighbours.remove(neighbour_to_remove)
 
+	def get_block(self, index):
+		return self.blockchain.get_block(index)
 
 
 class Notifier(Thread): 
