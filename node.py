@@ -1,6 +1,5 @@
 import requests
 from threading import Thread
-import json
 from blockchain import Blockchain
 from urllib.parse import urlparse
 from time import sleep
@@ -14,7 +13,10 @@ class Node:
 		self.blockchain = blockchain
 		if len(self.neighbours) < 8:
 			self.ask_new_neighbours(8-len(self.neighbours))
-		self.get_blockchain_neighbours()
+		self.start_blockchain_worker()
+
+	def start_blockchain_worker(self):
+		Notifier(node=self, function=NotifierFunctions.blockchain_worker).start()
 
 	def get_blockchain_neighbours(self):
 		for neighbour in list(self.neighbours):
@@ -112,11 +114,13 @@ class NotifierFunctions:
 		except:
 			node.remove_neighbour(url)
 		if data:
-			print(data)
 			blockchain = blockchain_serializer(data)
 			node.new_blockchain(blockchain)
 
-
+	def blockchain_worker(node, *args, **kwargs):
+		while True:
+			node.get_blockchain_neighbours()
+			sleep(5)
 
 	def notify(notifier, url, node, data, *args, **kwargs):
 		try:

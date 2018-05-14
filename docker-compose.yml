@@ -8,3 +8,4 @@ services:
         volumes:
             - .:/var/apps/blockchain/
         command: python3 app.py
+

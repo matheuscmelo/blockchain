@@ -33,8 +33,6 @@ class Transaction:
 	def __eq__(self, other):
 		return self.hash == other.hash
 
-
-
 class Block:
 
 	api_fields = {
@@ -66,8 +64,10 @@ class Block:
 		bhash.update(str(self.index).encode('utf-8'))
 		for transaction in self.transactions:
 			bhash.update(transaction.hash.encode('utf-8'))
-
 		return bhash.hexdigest()
+
+	def size(self):
+		return len(self.transactions)
 
 class Blockchain:
 
@@ -127,7 +127,8 @@ class Blockchain:
 		return self.last_block.add_transaction(sender, receiver, amount, timestamp, thash)
 
 	def new_blockchain(self, blockchain):
-		if blockchain.is_valid() and blockchain.size() > self.size():
+		print(blockchain.last_block.size())
+		if blockchain.is_valid() and blockchain.size() >= self.size():
 			self.genesis = blockchain.genesis
 			self.last_block = blockchain.last_block
 
@@ -135,5 +136,5 @@ class Blockchain:
 		block = self.genesis
 		while block:
 			if block.index == index: return block
-			block = block.next_block
+			block = block.next_block 
 		return None

@@ -13,7 +13,7 @@ class BlockListController(Resource):
 
 	@marshal_with(Block.api_fields)
 	def get(self):
-		return self.node.to_list()
+		return self.node.to_list()  
 
 class TransactionController(Resource):
 
