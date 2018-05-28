@@ -120,7 +120,7 @@ class NotifierFunctions:
 	def blockchain_worker(node, *args, **kwargs):
 		while True:
 			node.get_blockchain_neighbours()
-			sleep(5)
+			sleep(600)
 
 	def notify(notifier, url, node, data, *args, **kwargs):
 		try:
