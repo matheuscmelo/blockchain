@@ -34,14 +34,10 @@ class BlockchainController(Resource):
 
 	def put(self):
 		data = {}
-		
 		if request.data: data = request.get_json()
-
 		if "index" in data:
 			print (data["index"]) 
 			self.node.close_last_block(data["index"])
-		else:
-			self.node.close_last_block()
 		self.node.add_neighbour(request.remote_addr)
 		return {}
 

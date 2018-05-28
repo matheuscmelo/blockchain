@@ -9,6 +9,7 @@ def blockchain_serializer(data):
 		block.next_block = next_block
 		block = next_block
 		i += 1
+	blockchain.last_block = block
 	return blockchain
 		
 

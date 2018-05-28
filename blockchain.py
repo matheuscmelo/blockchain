@@ -115,13 +115,13 @@ class Blockchain:
 		return True
 
 	def close_last_block(self, index=None): 
-		block_index = -1
-		if not index or int(index) == self.last_block.index:
+		if int(index) == self.last_block.index:
 			block = self.last_block
 			block_index = block.index
 			self.add_block(Block())
 			block.close()
-		return block_index
+			return True
+		return False
 
 	def add_transaction(self, sender, receiver, amount, timestamp=None, thash=None):
 		return self.last_block.add_transaction(sender, receiver, amount, timestamp, thash)
