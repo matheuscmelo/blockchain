@@ -45,8 +45,10 @@ class Node:
 		return self.blockchain.is_valid()
 
 	def close_last_block(self, index):
-		if self.blockchain.close_last_block(index):
+		block = self.blockchain.close_last_block(index)
+		if block:
 			self.notify_close_block(index)
+			return block
 
 	def add_transaction(self, sender, receiver, amount, timestamp=None, thash=None):
 		transaction, result = self.blockchain.add_transaction(sender, receiver, amount, timestamp, thash)

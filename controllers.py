@@ -32,14 +32,15 @@ class BlockchainController(Resource):
 
 	node = BlockchainHolder.node
 
+	@marshal_with(Block.api_fields)
 	def put(self):
 		data = {}
+		block = {}
 		if request.data: data = request.get_json()
 		if "index" in data:
-			print (data["index"]) 
-			self.node.close_last_block(data["index"])
+			block = self.node.close_last_block(data["index"])
 		self.node.add_neighbour(request.remote_addr)
-		return {}
+		return block
 
 class NeighbourController(Resource):
 
